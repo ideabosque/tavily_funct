@@ -64,11 +64,12 @@ class TavilyFunct(AIAgentFunctBase):
             self.logger.info(f"Arguments: {arguments}")
             endpoint_id = arguments["endpoint_id"]
             query = arguments["query"]
+            search_args = arguments.get("search_args", {})
             self.logger.info(f"Endpoint ID: {endpoint_id}")
             self.logger.info(f"Query: {query}")
 
             return self.tavily_client.search(
-                **{"query": query, **self.full_search_args}
+                **{"query": query, **dict(self.full_search_args, **search_args)}
             )
         except Exception as e:
             log = traceback.format_exc()
@@ -80,11 +81,12 @@ class TavilyFunct(AIAgentFunctBase):
             self.logger.info(f"Arguments: {arguments}")
             endpoint_id = arguments["endpoint_id"]
             query = arguments["query"]
+            search_args = arguments.get("search_args", {})
             self.logger.info(f"Endpoint ID: {endpoint_id}")
             self.logger.info(f"Query: {query}")
 
             return self.tavily_client.get_search_context(
-                **{"query": query, **self.search_context_args}
+                **{"query": query, **dict(self.search_context_args, **search_args)}
             )
         except Exception as e:
             log = traceback.format_exc()
@@ -96,11 +98,12 @@ class TavilyFunct(AIAgentFunctBase):
             self.logger.info(f"Arguments: {arguments}")
             endpoint_id = arguments["endpoint_id"]
             query = arguments["query"]
+            search_args = arguments.get("search_args", {})
             self.logger.info(f"Endpoint ID: {endpoint_id}")
             self.logger.info(f"Query: {query}")
 
             return self.tavily_client.qna_search(
-                **{"query": query, **self.base_search_args}
+                **{"query": query, **dict(self.base_search_args, **search_args)}
             )
         except Exception as e:
             log = traceback.format_exc()
@@ -112,10 +115,13 @@ class TavilyFunct(AIAgentFunctBase):
             self.logger.info(f"Arguments: {arguments}")
             endpoint_id = arguments["endpoint_id"]
             urls = arguments["urls"]
+            search_args = arguments.get("search_args", {})
             self.logger.info(f"Endpoint ID: {endpoint_id}")
             self.logger.info(f"URLs: {urls}")
 
-            return self.tavily_client.extract(**{"urls": urls, **self.extract_args})
+            return self.tavily_client.extract(
+                **{"urls": urls, **dict(self.extract_args, **search_args)}
+            )
         except Exception as e:
             log = traceback.format_exc()
             self.logger.error(log)
