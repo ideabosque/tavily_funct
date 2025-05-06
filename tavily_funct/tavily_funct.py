@@ -10,10 +10,104 @@ import logging
 import traceback
 from typing import Any, Dict, List
 
+from pydantic import BaseModel, Field
 from tavily import TavilyClient
 
 from ai_agent_funct_base import AIAgentFunctBase
 from silvaengine_utility import Utility
+
+
+class BaseSearchArgs(BaseModel):
+    topic: str = Field(
+        ...,
+        description="The main subject area or category for the search (e.g., 'technology', 'science', 'general')",
+    )
+    search_depth: str = Field(
+        "basic",
+        description="Level of search depth - 'basic' for faster, surface-level results or 'advanced' for more comprehensive search",
+    )
+    days: int = Field(7, description="Number of days back to search from current date")
+    max_results: int = Field(
+        5, description="Maximum number of search results to return"
+    )
+    include_domains: List[str] = Field(
+        [],
+        description="List of specific website domains to include in the search results",
+    )
+    exclude_domains: List[str] = Field(
+        [], description="List of website domains to exclude from search results"
+    )
+    timeout: int = Field(
+        60, description="Maximum time in seconds to wait for search completion"
+    )
+
+
+class search(BaseModel):
+    class FullSearchArgs(BaseSearchArgs):
+        time_range: str = Field(
+            None,
+            description="Specific time period for search results (e.g., 'past_week', 'past_month', 'past_year')",
+        )
+        include_answer: bool = Field(
+            False,
+            description="Whether to include an AI-generated summary answer in the search results",
+        )
+        include_raw_content: bool = Field(
+            False,
+            description="Whether to include the full unprocessed content of search results",
+        )
+        include_images: bool = Field(
+            False, description="Whether to include image results alongside text results"
+        )
+
+    query: str = Field(
+        ..., description="The search query text used to find relevant information"
+    )
+    search_args: FullSearchArgs = Field(
+        ..., description="Configuration parameters controlling the full search behavior"
+    )
+
+
+class get_search_context(BaseModel):
+    class SearchContextArgs(BaseSearchArgs):
+        max_tokens: int = Field(
+            4000,
+            description="Maximum number of text tokens to include in the returned search context",
+        )
+
+    query: str = Field(
+        ...,
+        description="The search query text used to find relevant contextual information",
+    )
+    search_args: SearchContextArgs = Field(
+        ..., description="Configuration parameters for retrieving search context"
+    )
+
+
+class qna_search(BaseModel):
+    query: str = Field(
+        ..., description="The question to be answered through the search system"
+    )
+    search_args: BaseSearchArgs = Field(
+        ...,
+        description="Configuration parameters for the question-answering search process",
+    )
+
+
+class extract(BaseModel):
+    class ExtractArgs(BaseModel):
+        extract_depth: str = Field(
+            ...,
+            description="Level of detail for content extraction - 'basic' for essential information or 'advanced' for comprehensive extraction",
+        )
+
+    query: str = Field(
+        ..., description="The search query used to identify content for extraction"
+    )
+    extract_args: ExtractArgs = Field(
+        ...,
+        description="Configuration parameters controlling the content extraction process",
+    )
 
 
 class TavilyFunct(AIAgentFunctBase):
